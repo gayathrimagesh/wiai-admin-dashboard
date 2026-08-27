@@ -66,6 +66,16 @@ function daysSince(iso) {
   if (!iso) return Infinity;
   return Math.floor((TODAY - new Date(iso)) / (1000 * 60 * 60 * 24));
 }
+function formatRecency(iso) {
+  if (!iso) return "—";
+  const days = daysSince(iso);
+  if (days < 0) return "—";
+  if (days === 0) return "today";
+  if (days < 14) return `${days} day${days === 1 ? "" : "s"} ago`;
+  if (days < 60) { const w = Math.round(days / 7); return `${w} week${w === 1 ? "" : "s"} ago`; }
+  const m = Math.round(days / 30);
+  return `${m} month${m === 1 ? "" : "s"} ago`;
+}
 function memberById(id) {
   return MEMBERS.find(m => m.id === id);
 }
@@ -1088,8 +1098,12 @@ function renderProfile(id) {
   const emails = EMAILS.filter(e => e.memberId === id).sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt));
   const failedCount = emails.filter(e => e.status === "failed").length;
   const clicks = PERK_CLICKS.filter(c => c.memberId === id).sort((a, b) => new Date(b.clickedAt) - new Date(a.clickedAt));
+
   const match = PORTAL_MATCHES.find(pm => pm.memberId === id);
-  const rsvps = PORTAL_RSVPS.filter(r => r.memberId === id);
+  const matchRate = match ? Math.round((match.acceptedCount / match.totalMatches) * 100) : null;
+
+  const allRsvps = PORTAL_RSVPS.filter(r => r.memberId === id);
+  const upcomingRsvps = allRsvps.filter(r => daysUntil(r.date) >= 0).sort((a, b) => new Date(a.date) - new Date(b.date));
 
   const emailRows = emails.length ? emails.map(e => `
     <tr><td>${e.template}</td><td>${fmtDateTime(e.sentAt)}</td>
@@ -1100,10 +1114,9 @@ function renderProfile(id) {
     <tr><td>${c.perk}</td><td>${fmtDate(c.clickedAt)}</td></tr>
   `).join("") : `<tr><td colspan="2" class="empty">No perk clicks on record.</td></tr>`;
 
-  const portalRows = [
-    match ? `<tr><td>Accepted AI match <span class="meta">(${match.acceptedCount} of ${match.totalMatches} total)</span></td><td>${fmtDate(match.lastMatchAt)}</td></tr>` : "",
-    ...rsvps.map(r => `<tr><td>RSVP'd — ${r.event}</td><td>${fmtDate(r.date)}</td></tr>`),
-  ].filter(Boolean).join("") || `<tr><td colspan="2" class="empty">No portal activity on record.</td></tr>`;
+  const upcomingRows = upcomingRsvps.length
+    ? upcomingRsvps.map(r => `<div class="list-row" style="background:var(--bg-lavender)"><span>${r.event}</span><span class="meta" style="color:var(--lavender-text)">${fmtDate(r.date)}</span></div>`).join("")
+    : `<div class="empty">No upcoming RSVPs.</div>`;
 
   const initials = initialsOf(m.name);
   const backLabel = state.cameFrom === "members" ? "member list" : state.cameFrom;
@@ -1127,11 +1140,10 @@ function renderProfile(id) {
       </div>
 
       <div>
-        <div class="grid-4" style="margin-bottom:18px">
+        <p class="subsection-title" style="margin-top:0">Tracked activity</p>
+        <div class="grid-2" style="margin-bottom:18px; max-width:280px">
           <div class="marker"><p class="m-label">Emails</p><p class="m-value">${emails.length} ${failedCount ? `<span class="m-sub" style="color:var(--danger)">· ${failedCount} failed</span>` : ""}</p></div>
           <div class="marker"><p class="m-label">Perk clicks</p><p class="m-value">${clicks.length}</p></div>
-          <div class="marker"><p class="m-label">Matches</p><p class="m-value">${match ? `${match.acceptedCount} <span class="m-sub">/ ${match.totalMatches}</span>` : "—"}</p></div>
-          <div class="marker"><p class="m-label">RSVPs</p><p class="m-value">${rsvps.length}</p></div>
         </div>
 
         <p class="subsection-title">Emails</p>
@@ -1140,15 +1152,24 @@ function renderProfile(id) {
         </div>
 
         <p class="subsection-title">Perk clicks</p>
-        <div class="table-wrap" style="margin-bottom:18px">
+        <div class="table-wrap" style="margin-bottom:20px">
           <table class="table"><thead><tr><th>Perk</th><th>Clicked</th></tr></thead><tbody>${perkRows}</tbody></table>
         </div>
 
-        <p class="subsection-title">Portal activity <span class="subsection-hint">— not yet tracked on the admin side, illustrative</span></p>
-        <div class="table-wrap">
-          <table class="table"><thead><tr><th>Event</th><th>Date</th></tr></thead><tbody>${portalRows}</tbody></table>
+        <div style="border-top:1px dashed var(--border); padding-top:16px">
+          <p class="subsection-title" style="margin-top:0">Portal activity <span class="subsection-hint">— not yet tracked, illustrative</span></p>
+
+          <div class="grid-3" style="margin-bottom:14px">
+            <div class="portal-tile"><p class="pt-label">Match engagement</p><p class="pt-value">${match ? `${matchRate}% <span class="sub">(${match.acceptedCount}/${match.totalMatches})</span>` : "—"}</p></div>
+            <div class="portal-tile"><p class="pt-label">Last match</p><p class="pt-value">${match ? formatRecency(match.lastMatchAt) : "—"}</p></div>
+            <div class="portal-tile"><p class="pt-label">Events RSVP'd</p><p class="pt-value">${allRsvps.length} <span class="sub">total</span></p></div>
+          </div>
+
+          <p class="subsection-hint" style="text-transform:uppercase; letter-spacing:0.04em; font-weight:600; margin:10px 0 6px">Upcoming <span style="text-transform:none; font-weight:400">— ${upcomingRsvps.length} of the ${allRsvps.length} above</span></p>
+          <div class="table-wrap" style="margin-bottom:10px">${upcomingRows}</div>
+
+          <p class="subsection-hint" style="margin:0">RSVP'd doesn't mean attended.</p>
         </div>
-        <p style="font-size:11px;color:var(--text-muted);margin:8px 0 0">Requires a member_id link on match and RSVP records — not confirmed to exist today.</p>
       </div>
     </div>
   `;

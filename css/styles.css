@@ -168,6 +168,7 @@ button { font-family: inherit; cursor: pointer; }
   padding: 16px 18px;
 }
 
+.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
 .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; }
 .grid-5 { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 10px; }
@@ -206,6 +207,20 @@ button { font-family: inherit; cursor: pointer; }
 }
 .marker.spark:hover { background: #E4DCC9; }
 
+.portal-tile {
+  background: var(--bg-lavender);
+  border-radius: var(--radius);
+  padding: 10px;
+}
+.portal-tile .pt-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--lavender-text); margin: 0 0 3px;
+}
+.portal-tile .pt-value {
+  font-size: 16px; font-weight: 600; margin: 0; color: var(--lavender-text);
+}
+.portal-tile .pt-value .sub { font-size: 10px; font-weight: 400; }
+
 .pill {
   display: inline-block;
   font-size: 11px;
@@ -225,6 +240,7 @@ button { font-family: inherit; cursor: pointer; }
   text-decoration: none;
   font-weight: 500;
   border-bottom: 1px solid transparent;
+  justify-self: start; /* keeps the link hugging its text instead of stretching to fill a grid cell */
 }
 .link:hover { border-bottom-color: var(--maroon); }
 

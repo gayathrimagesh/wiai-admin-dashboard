@@ -82,13 +82,25 @@ const ALL_PERKS = [
 // export from the portal side could look like, seeded for a subset of
 // members only, matching the "not yet tracked" caveat in the write-up.
 const PORTAL_MATCHES = [
-  { memberId: "m03", totalMatches: 10, acceptedCount: 1, lastMatchAt: "2026-08-16" },
+  { memberId: "m03", totalMatches: 10, acceptedCount: 3, lastMatchAt: "2026-08-02" },
   { memberId: "m11", totalMatches: 8,  acceptedCount: 3, lastMatchAt: "2026-08-17" },
   { memberId: "m07", totalMatches: 12, acceptedCount: 0, lastMatchAt: "2026-08-11" },
+  { memberId: "m09", totalMatches: 6,  acceptedCount: 4, lastMatchAt: "2026-08-20" },
+  { memberId: "m17", totalMatches: 5,  acceptedCount: 1, lastMatchAt: "2026-07-20" },
 ];
 
 const PORTAL_RSVPS = [
-  { memberId: "m03", event: "Women in AI Founders in Clay", date: "2026-08-12" },
-  { memberId: "m11", event: "The Future of Talent, Powered by AI", date: "2026-08-27" },
-  { memberId: "m11", event: "Inside Joan's AI Tech Stack", date: "2026-08-21" },
+  { memberId: "m03", event: "Founder Office Hours",                    date: "2026-07-15" },
+  { memberId: "m03", event: "AI Infra Summit Preview",                 date: "2026-07-30" },
+  { memberId: "m03", event: "Inside Joan's AI Tech Stack",             date: "2026-08-11" },
+  { memberId: "m03", event: "Women in AI Founders in Clay",            date: "2026-08-12" },
+  { memberId: "m03", event: "The Future of Talent, Powered by AI",     date: "2026-08-27" },
+  { memberId: "m11", event: "The Future of Talent, Powered by AI",     date: "2026-08-27" },
+  { memberId: "m11", event: "Inside Joan's AI Tech Stack",             date: "2026-08-21" },
+  // m07: RSVP'd to past events but nothing upcoming — the "quiet disengagement"
+  // pattern named in Future Directions (several past RSVPs, zero upcoming).
+  { memberId: "m07", event: "Founder Office Hours",                    date: "2026-07-15" },
+  { memberId: "m07", event: "AI Infra Summit Preview",                 date: "2026-07-30" },
+  { memberId: "m09", event: "Women in AI Founders in Clay",            date: "2026-08-12" },
+  { memberId: "m09", event: "The Future of Talent, Powered by AI",     date: "2026-08-27" },
 ];
